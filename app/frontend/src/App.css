@@ -1,0 +1,58 @@
+/* Leave Management App Styles */
+
+/* Navigation */
+.nav-link {
+    @apply flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200;
+}
+
+.nav-link.active {
+    @apply bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100;
+}
+
+.nav-link:not(.active) {
+    @apply text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50;
+}
+
+/* Cards */
+.app-card {
+    @apply bg-white dark:bg-slate-900 rounded-xl border border-slate-200/60 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow duration-300;
+}
+
+/* Leave type badges */
+.leave-badge-sick {
+    @apply bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20;
+}
+
+.leave-badge-casual {
+    @apply bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20;
+}
+
+.leave-badge-earned {
+    @apply bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20;
+}
+
+/* Status badges */
+.status-pending {
+    @apply bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20;
+}
+
+.status-approved {
+    @apply bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20;
+}
+
+.status-rejected {
+    @apply bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20;
+}
+
+/* Role badges */
+.role-admin {
+    @apply bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400;
+}
+
+.role-manager {
+    @apply bg-sky-50 dark:bg-sky-500/10 text-sky-700 dark:text-sky-400;
+}
+
+.role-employee {
+    @apply bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400;
+}
