@@ -1,0 +1,128 @@
+{
+  "identity": {
+    "name": "E1",
+    "persona": "The Anti-AI Designer",
+    "tone": "Clean, Minimal, Efficient, Human",
+    "theme_strategy": "Light Theme (Soft Utility)"
+  },
+  "typography": {
+    "font_family_heading": "Manrope, sans-serif",
+    "font_family_body": "Inter, sans-serif",
+    "scale": {
+      "h1": "text-4xl md:text-5xl font-bold tracking-tight",
+      "h2": "text-3xl font-semibold tracking-tight",
+      "h3": "text-2xl font-medium",
+      "body": "text-base leading-relaxed text-slate-600",
+      "caption": "text-sm text-slate-500"
+    },
+    "imports": [
+      "@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');"
+    ]
+  },
+  "colors": {
+    "palette": {
+      "background": "#f8fafc",
+      "foreground": "#0f172a",
+      "primary": "#334155",
+      "primary_foreground": "#ffffff",
+      "secondary": "#e2e8f0",
+      "secondary_foreground": "#1e293b",
+      "muted": "#f1f5f9",
+      "muted_foreground": "#64748b",
+      "border": "#e2e8f0",
+      "input": "#e2e8f0",
+      "ring": "#94a3b8"
+    },
+    "status": {
+      "success": "#10b981",
+      "warning": "#f59e0b",
+      "error": "#ef4444",
+      "info": "#3b82f6"
+    },
+    "leave_types": {
+      "sick": {
+        "bg": "bg-rose-50",
+        "text": "text-rose-700",
+        "border": "border-rose-200",
+        "icon": "text-rose-500"
+      },
+      "casual": {
+        "bg": "bg-amber-50",
+        "text": "text-amber-700",
+        "border": "border-amber-200",
+        "icon": "text-amber-500"
+      },
+      "earned": {
+        "bg": "bg-emerald-50",
+        "text": "text-emerald-700",
+        "border": "border-emerald-200",
+        "icon": "text-emerald-500"
+      }
+    }
+  },
+  "layout_strategy": {
+    "container": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8",
+    "dashboard_grid": "grid grid-cols-1 md:grid-cols-12 gap-6",
+    "bento_grid": {
+      "hero": "col-span-1 md:col-span-12 lg:col-span-8 row-span-2",
+      "balance_card": "col-span-1 md:col-span-4 lg:col-span-4",
+      "calendar_widget": "col-span-1 md:col-span-6 lg:col-span-4 row-span-2",
+      "list_widget": "col-span-1 md:col-span-6 lg:col-span-8"
+    },
+    "spacing": {
+      "section_gap": "gap-8",
+      "card_padding": "p-6"
+    }
+  },
+  "components": {
+    "buttons": {
+      "default": "rounded-lg font-medium transition-all duration-200 active:scale-95 shadow-sm hover:shadow-md",
+      "primary": "bg-slate-700 text-white hover:bg-slate-800",
+      "secondary": "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:border-slate-300"
+    },
+    "cards": {
+      "style": "bg-white rounded-xl border border-slate-200/60 shadow-sm hover:shadow-md transition-shadow duration-300",
+      "neumorphic": "bg-white rounded-xl border border-white/50 shadow-[4px_4px_10px_rgba(0,0,0,0.03),-4px_-4px_10px_rgba(255,255,255,0.8)]"
+    },
+    "inputs": {
+      "style": "rounded-lg border-slate-200 bg-white/50 focus:bg-white transition-colors focus:ring-2 focus:ring-slate-200 focus:border-slate-400"
+    },
+    "navigation": {
+      "sidebar": "fixed left-0 top-0 h-full w-64 bg-white border-r border-slate-200 p-6 flex flex-col gap-2 z-50 hidden lg:flex",
+      "mobile_nav": "lg:hidden fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 p-4 flex justify-around z-50",
+      "link_active": "bg-slate-100 text-slate-900 font-medium",
+      "link_inactive": "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
+    }
+  },
+  "visual_enhancers": {
+    "glassmorphism": "backdrop-blur-md bg-white/70 border-b border-white/20",
+    "gradients": "None. Use solid colors or extremely subtle mesh gradients for backgrounds only.",
+    "shadows": "shadow-sm for cards, shadow-lg for dropdowns/modals",
+    "border_radius": "rounded-xl (12px) for cards, rounded-lg (8px) for buttons/inputs"
+  },
+  "assets": {
+    "icons": "Lucide React (default)",
+    "image_style": "Professional, clean, high-key lighting. Circular avatars."
+  },
+  "universal_guidelines": [
+    "Do NOT use 'Inter' for headings. Use 'Manrope'.",
+    "Avoid generic Bootstrap grids. Use the Bento grid strategy.",
+    "Use 2-3x more spacing than typical designs (p-6, p-8).",
+    "Every interaction needs a micro-transition (duration-200).",
+    "Use specific colors for leave types (Rose=Sick, Amber=Casual, Emerald=Earned).",
+    "Ensure high contrast for text (Slate-600+ on white).",
+    "All interactive elements MUST have data-testid attributes."
+  ],
+  "image_urls": {
+    "avatars": [
+      "https://images.unsplash.com/photo-1762522926157-bcc04bf0b10a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2ODh8MHwxfHNlYXJjaHw0fHxwcm9mZXNzaW9uYWwlMjBoZWFkc2hvdCUyMHBvcnRyYWl0fGVufDB8fHx8MTc3MzY1NTI4N3ww&ixlib=rb-4.1.0&q=85",
+      "https://images.unsplash.com/photo-1576558656222-ba66febe3dec?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2ODh8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBoZWFkc2hvdCUyMHBvcnRyYWl0fGVufDB8fHx8MTc3MzY1NTI4N3ww&ixlib=rb-4.1.0&q=85",
+      "https://images.pexels.com/photos/30004324/pexels-photo-30004324.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "https://images.pexels.com/photos/30004323/pexels-photo-30004323.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
+    ],
+    "placeholders": [
+      "https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&q=80&w=1080" 
+    ]
+  },
+  "instructions_to_main_agent": "Implement the design using the specified color palette and typography. Override Shadcn defaults in tailwind.config.js or via custom classes. Build the Layout wrapper first. Focus on the 'Bento' grid for the dashboard. Use the specified leave type colors consistently across the app (badges, calendar events, charts)."
+}

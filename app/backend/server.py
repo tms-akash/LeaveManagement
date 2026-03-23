@@ -312,6 +312,78 @@ async def delete_employee(employee_id: str, current_user: dict = Depends(get_cur
     await db.leave_requests.delete_many({"employee_id": employee_id})
     return {"message": "Employee deleted"}
 
+@api_router.post("/employees/upload")
+async def upload_employees(file: UploadFile = File(...), current_user: dict = Depends(get_current_user)):
+    if current_user["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Only admin can upload employees")
+
+    content = await file.read()
+    try:
+        if file.filename.endswith(".csv"):
+            df = pd.read_csv(io.BytesIO(content))
+        elif file.filename.endswith((".xls", ".xlsx")):
+            df = pd.read_excel(io.BytesIO(content))
+        else:
+            raise HTTPException(status_code=400, detail="Invalid file format. Please upload CSV or Excel.")
+
+        # Normalize column names
+        cols = {str(c).strip().lower(): str(c) for c in df.columns}
+        
+        name_col, email_col, dept_col, role_col, mgr_col = None, None, None, None, None
+        for k, v in cols.items():
+            if "manager" in k: mgr_col = v
+            elif "email" in k: email_col = v
+            elif "name" in k: name_col = v
+            elif "department" in k: dept_col = v
+            elif "role" in k: role_col = v
+
+        if not name_col or not email_col or not dept_col:
+            raise HTTPException(status_code=400, detail="File must contain at least 'Name', 'Email', and 'Department' columns.")
+
+        inserted_count = 0
+        skipped_count = 0
+        
+        pwd = get_password_hash("password123")
+        
+        for _, row in df.iterrows():
+            name = str(row[name_col]).strip()
+            email = str(row[email_col]).strip().lower()
+            dept = str(row[dept_col]).strip()
+            role = str(row[role_col]).strip().lower() if role_col and not pd.isna(row[role_col]) else "employee"
+            
+            if pd.isna(row[name_col]) or pd.isna(row[email_col]) or name.lower() == "nan" or email.lower() == "nan":
+                continue
+                
+            # Check existing email
+            existing = await db.employees.find_one({"email": email})
+            if existing:
+                skipped_count += 1
+                continue
+                
+            manager_id = None
+            if mgr_col and not pd.isna(row[mgr_col]):
+                mgr_email = str(row[mgr_col]).strip().lower()
+                manager = await db.employees.find_one({"email": mgr_email})
+                if manager:
+                    manager_id = manager["id"]
+                    
+            emp = Employee(
+                name=name,
+                email=email,
+                department=dept,
+                role=role if role in ["admin", "manager", "employee"] else "employee",
+                password_hash=pwd,
+                manager_id=manager_id
+            )
+            await db.employees.insert_one(emp.model_dump())
+            inserted_count += 1
+            
+        skip_note = f" ({skipped_count} already in the squad, skipped!)" if skipped_count else ""
+        return {"message": f"🎉 Boom! {inserted_count} new team members just joined the party!{skip_note}"}
+    except Exception as e:
+        logger.error(f"Error processing employee upload: {e}")
+        raise HTTPException(status_code=400, detail=f"Error processing file: {str(e)}")
+
 # ── Leave Endpoints ──
 
 @api_router.post("/leaves", response_model=LeaveRequest)

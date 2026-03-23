@@ -14,7 +14,7 @@ import {
     DialogFooter,
     DialogDescription,
 } from "../components/ui/dialog";
-import { Plus, Pencil, Trash2, Users, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, Users, Search, UploadCloud, Download } from "lucide-react";
 import { toast } from "sonner";
 import { roleColors } from "../config/leaveConfig";
 
@@ -28,6 +28,8 @@ export default function Employees() {
     const [roleFilter, setRoleFilter] = useState("all");
     const [departmentFilter, setDepartmentFilter] = useState("all");
     const [dialogOpen, setDialogOpen] = useState(false);
+    const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+    const [uploading, setUploading] = useState(false);
     const [editingEmployee, setEditingEmployee] = useState(null);
     const [form, setForm] = useState({ name: "", email: "", department: "", role: "employee", manager_id: "" });
 
@@ -96,6 +98,42 @@ export default function Employees() {
         }
     };
 
+    const handleFileUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        setUploading(true);
+        try {
+            const res = await axios.post(`${API}/employees/upload`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            toast.success(res.data.message);
+            fetchEmployees();
+            setUploadDialogOpen(false);
+        } catch (err) {
+            toast.error(err.response?.data?.detail || "Upload failed. Does your file have 'Name', 'Email', and 'Department'?");
+        } finally {
+            setUploading(false);
+            e.target.value = null; 
+        }
+    };
+
+    const downloadEmployeeTemplate = () => {
+        const csvContent = "data:text/csv;charset=utf-8,Name,Email,Department,Role,Manager Email\nJohn Doe,john@company.com,Engineering,manager,\nJane Smith,jane@company.com,Engineering,employee,john@company.com";
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "Employees_Template.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     return (
         <div className="animate-fade-in" data-testid="employees-page">
             <div className="flex items-start justify-between mb-8">
@@ -105,13 +143,22 @@ export default function Employees() {
                     </h1>
                     <p className="text-slate-500 mt-1 text-sm">{employees.length} team members</p>
                 </div>
-                <Button
-                    onClick={openAdd}
-                    className="rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-medium transition-all duration-200 active:scale-95 shadow-sm"
-                    data-testid="add-employee-btn"
-                >
-                    <Plus className="w-4 h-4 mr-2" /> Add Employee
-                </Button>
+                <div className="flex gap-2">
+                    <Button
+                        variant="outline"
+                        onClick={() => setUploadDialogOpen(true)}
+                        className="rounded-lg border-slate-200 dark:border-slate-700 font-medium transition-all duration-200 active:scale-95 shadow-sm"
+                    >
+                        <UploadCloud className="w-4 h-4 sm:mr-2" /> <span className="hidden sm:inline">Bulk Upload</span>
+                    </Button>
+                    <Button
+                        onClick={openAdd}
+                        className="rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-medium transition-all duration-200 active:scale-95 shadow-sm"
+                        data-testid="add-employee-btn"
+                    >
+                        <Plus className="w-4 h-4 sm:mr-2" /> <span className="hidden sm:inline">Add Employee</span>
+                    </Button>
+                </div>
             </div>
 
             {/* Filters */}
@@ -294,6 +341,53 @@ export default function Employees() {
                             {editingEmployee ? "Update" : "Add"}
                         </Button>
                     </DialogFooter>
+                </DialogContent>
+            </Dialog>
+            {/* Upload Dialog */}
+            <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
+                <DialogContent className="sm:max-w-xl rounded-xl">
+                    <DialogHeader>
+                        <DialogTitle className="text-lg font-semibold" style={{ fontFamily: 'Manrope, sans-serif' }}>
+                            Bulk Upload Employees
+                        </DialogTitle>
+                        <DialogDescription className="text-sm text-slate-500">
+                            Upload a CSV or Excel file to quickly onboard your team.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex flex-col items-center justify-center py-8">
+                        <div className="p-4 bg-indigo-50 rounded-full mb-4">
+                            <UploadCloud className="w-8 h-8 text-indigo-500" />
+                        </div>
+                        <div className="text-sm text-slate-600 dark:text-slate-400 text-center max-w-md mb-6 space-y-2">
+                            <p>
+                                Upload a file containing <strong className="text-slate-700 dark:text-slate-300">Name</strong>, <strong className="text-slate-700 dark:text-slate-300">Email</strong>, and <strong className="text-slate-700 dark:text-slate-300">Department</strong>. Optional: <strong className="text-slate-700 dark:text-slate-300">Role</strong> and <strong className="text-slate-700 dark:text-slate-300">Manager Email</strong>.
+                            </p>
+                            <p className="text-xs text-slate-500 bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800">
+                                💡 <strong>How it works:</strong> The email becomes their username to log in. Accounts are created instantly with the password <strong>password123</strong>. Anyone already in the system is safely skipped!
+                            </p>
+                        </div>
+                        
+                        <div className="flex gap-4">
+                            <div className="relative">
+                                <input 
+                                    type="file" 
+                                    accept=".csv, .xlsx, .xls"
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                    onChange={handleFileUpload}
+                                    disabled={uploading}
+                                />
+                                <Button 
+                                    className="bg-indigo-600 hover:bg-indigo-700 text-white min-w-[150px]"
+                                    disabled={uploading}
+                                >
+                                    {uploading ? "Uploading..." : "Select File"}
+                                </Button>
+                            </div>
+                            <Button variant="outline" onClick={downloadEmployeeTemplate}>
+                                <Download className="w-4 h-4 mr-2" /> Template
+                            </Button>
+                        </div>
+                    </div>
                 </DialogContent>
             </Dialog>
         </div>
