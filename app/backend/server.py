@@ -850,6 +850,7 @@ async def root():
     return {"message": "Leave Management API"}
 
 @app.get("/")
+@app.head("/")
 async def health_check():
     return {"status": "ok", "message": "Leave Management API is running"}
 
