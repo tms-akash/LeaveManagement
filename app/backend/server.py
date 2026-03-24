@@ -12,6 +12,7 @@ from typing import List, Optional
 import uuid
 from datetime import datetime, timezone, date, timedelta
 import jwt
+import random
 from passlib.context import CryptContext
 import pandas as pd
 import io
@@ -184,6 +185,73 @@ async def change_password(data: ChangePasswordData, current_user: dict = Depends
     new_hash = get_password_hash(data.new_password)
     await db.employees.update_one({"id": current_user["id"]}, {"$set": {"password_hash": new_hash}})
     return {"message": "Password updated successfully! Your new secret is safe with us."}
+
+class ForgotPasswordData(BaseModel):
+    email: str
+
+class ResetPasswordData(BaseModel):
+    email: str
+    otp: str
+    new_password: str
+
+@api_router.post("/auth/forgot-password")
+async def forgot_password(data: ForgotPasswordData, background_tasks: BackgroundTasks):
+    user = await db.employees.find_one({"email": data.email})
+    if not user:
+        # Prevent email enumeration: don't reveal if user exists, just return success
+        return {"message": "If your email is registered, we've sent an OTP your way!"}
+
+    otp = str(random.randint(100000, 999999))
+    expiry = datetime.now(timezone.utc) + timedelta(minutes=10)
+    
+    await db.employees.update_one(
+        {"email": data.email},
+        {"$set": {"reset_otp": otp, "reset_otp_expiry": expiry.isoformat()}}
+    )
+    
+    subject = "Password Reset - LeaveDesk"
+    content = f"""
+    <p>Hello {user['name']},</p>
+    <p>We received a request to reset your Password. Your One Time Password (OTP) is:</p>
+    <h3 style="background:#f4f4f5;padding:10px;display:inline-block;border-radius:5px;letter-spacing:2px;font-size:24px;">{otp}</h3>
+    <p>This OTP will expire in 10 minutes. If you didn't request this, you can safely ignore this email.</p>
+    <p>Best,<br>LeaveDesk System</p>
+    """
+    background_tasks.add_task(send_email_sync, [data.email], subject, content)
+    
+    return {"message": "If your email is registered, we've sent an OTP your way!"}
+
+@api_router.post("/auth/reset-password")
+async def reset_password(data: ResetPasswordData):
+    user = await db.employees.find_one({"email": data.email})
+    if not user:
+        raise HTTPException(status_code=400, detail="Invalid request")
+        
+    if not user.get("reset_otp") or user.get("reset_otp") != data.otp:
+        raise HTTPException(status_code=400, detail="Invalid or expired OTP")
+        
+    expiry_str = user.get("reset_otp_expiry")
+    if not expiry_str:
+        raise HTTPException(status_code=400, detail="Invalid or expired OTP")
+        
+    expiry = datetime.fromisoformat(expiry_str)
+    if datetime.now(timezone.utc) > expiry:
+        raise HTTPException(status_code=400, detail="OTP has expired")
+        
+    if len(data.new_password) < 6:
+        raise HTTPException(status_code=400, detail="New password must be at least 6 characters")
+        
+    new_hash = get_password_hash(data.new_password)
+    
+    await db.employees.update_one(
+        {"email": data.email},
+        {
+            "$set": {"password_hash": new_hash},
+            "$unset": {"reset_otp": "", "reset_otp_expiry": ""}
+        }
+    )
+    
+    return {"message": "Password reset successfully! You can now log in."}
 
 # ── Helper ──
 

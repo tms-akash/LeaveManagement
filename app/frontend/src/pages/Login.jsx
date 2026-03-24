@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useUser } from "../context/UserContext";
-import { useNavigate, Navigate } from "react-router-dom";
+import { useNavigate, Navigate, Link } from "react-router-dom";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
@@ -63,6 +63,9 @@ export default function Login() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <label className="text-sm font-medium leading-none text-slate-700 dark:text-slate-300">Password</label>
+                <Link to="/forgot-password" className="text-sm font-medium text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
+                  Forgot password?
+                </Link>
               </div>
               <Input
                 type="password"

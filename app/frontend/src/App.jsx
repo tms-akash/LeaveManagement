@@ -11,6 +11,7 @@ import TeamLeaves from "./pages/TeamLeaves";
 import CalendarView from "./pages/CalendarView";
 import Employees from "./pages/Employees";
 import Login from "./pages/Login";
+import ForgotPassword from "./pages/ForgotPassword";
 import Holidays from "./pages/Holidays";
 
 function ProtectedRoute({ children }) {
@@ -38,6 +39,7 @@ function AppContent() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route
         path="/*"
         element={
