@@ -849,6 +849,10 @@ async def seed_data():
 async def root():
     return {"message": "Leave Management API"}
 
+@app.get("/")
+async def health_check():
+    return {"status": "ok", "message": "Leave Management API is running"}
+
 app.include_router(api_router)
 
 app.add_middleware(
