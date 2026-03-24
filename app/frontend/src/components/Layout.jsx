@@ -9,11 +9,23 @@ import {
     ClipboardCheck,
     LogOut,
     Palmtree,
+    KeyRound,
 } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { Badge } from "../components/ui/badge";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+} from "../components/ui/dialog";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { toast } from "sonner";
 
 const navItems = [
     { to: "/", icon: LayoutDashboard, label: "Dashboard" },
@@ -34,6 +46,9 @@ const roleColors = {
 export default function Layout({ children }) {
     const { currentUser, logout } = useUser();
     const [notifications, setNotifications] = useState({ my_leaves: 0, team_leaves: 0 });
+    const [pwdDialogOpen, setPwdDialogOpen] = useState(false);
+    const [pwdForm, setPwdForm] = useState({ current: "", newPwd: "", confirm: "" });
+    const [pwdLoading, setPwdLoading] = useState(false);
 
     useEffect(() => {
         if (!currentUser) return;
@@ -53,6 +68,35 @@ export default function Layout({ children }) {
     const filteredNav = navItems.filter(
         (item) => !item.roles || (currentUser && item.roles.includes(currentUser.role))
     );
+
+    const handleChangePassword = async () => {
+        if (!pwdForm.current || !pwdForm.newPwd || !pwdForm.confirm) {
+            toast.error("All fields are required!");
+            return;
+        }
+        if (pwdForm.newPwd !== pwdForm.confirm) {
+            toast.error("New passwords don't match!");
+            return;
+        }
+        if (pwdForm.newPwd.length < 6) {
+            toast.error("New password must be at least 6 characters.");
+            return;
+        }
+        setPwdLoading(true);
+        try {
+            const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/auth/change-password`, {
+                current_password: pwdForm.current,
+                new_password: pwdForm.newPwd,
+            });
+            toast.success(res.data.message);
+            setPwdDialogOpen(false);
+            setPwdForm({ current: "", newPwd: "", confirm: "" });
+        } catch (err) {
+            toast.error(err.response?.data?.detail || "Failed to change password.");
+        } finally {
+            setPwdLoading(false);
+        }
+    };
 
     const SidebarContent = () => (
         <>
@@ -101,8 +145,15 @@ export default function Layout({ children }) {
                 )}
                 <div className="flex gap-2">
                     <button
+                        onClick={() => setPwdDialogOpen(true)}
+                        className="flex items-center justify-center gap-2 py-2 px-3 text-sm font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-500/10 hover:text-amber-600 dark:hover:text-amber-400 hover:border-amber-200 dark:hover:border-amber-500/30 transition-colors"
+                        title="Change Password"
+                    >
+                        <KeyRound className="w-4 h-4" />
+                    </button>
+                    <button
                         onClick={logout}
-                        className="w-full flex items-center justify-center gap-2 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-500/10 hover:text-rose-600 dark:hover:text-rose-400 hover:border-rose-200 dark:hover:border-rose-500/30 transition-colors"
+                        className="flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-500/10 hover:text-rose-600 dark:hover:text-rose-400 hover:border-rose-200 dark:hover:border-rose-500/30 transition-colors"
                     >
                         <LogOut className="w-4 h-4" /> Sign out
                     </button>
@@ -176,6 +227,68 @@ export default function Layout({ children }) {
                     </button>
                 </div>
             </nav>
+
+            {/* Change Password Dialog */}
+            <Dialog open={pwdDialogOpen} onOpenChange={(open) => { setPwdDialogOpen(open); if (!open) setPwdForm({ current: "", newPwd: "", confirm: "" }); }}>
+                <DialogContent className="sm:max-w-md rounded-xl">
+                    <DialogHeader>
+                        <DialogTitle className="text-lg font-semibold" style={{ fontFamily: 'Manrope, sans-serif' }}>
+                            Change Password
+                        </DialogTitle>
+                        <DialogDescription className="text-sm text-slate-500">
+                            Enter your current password and choose a new one.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-2">
+                        <div>
+                            <label className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1.5 block">Current Password</label>
+                            <Input
+                                type="password"
+                                value={pwdForm.current}
+                                onChange={(e) => setPwdForm({ ...pwdForm, current: e.target.value })}
+                                placeholder="Enter current password"
+                                className="rounded-lg border-slate-200 dark:border-slate-700"
+                            />
+                        </div>
+                        <div>
+                            <label className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1.5 block">New Password</label>
+                            <Input
+                                type="password"
+                                value={pwdForm.newPwd}
+                                onChange={(e) => setPwdForm({ ...pwdForm, newPwd: e.target.value })}
+                                placeholder="Enter new password (min 6 chars)"
+                                className="rounded-lg border-slate-200 dark:border-slate-700"
+                            />
+                        </div>
+                        <div>
+                            <label className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1.5 block">Confirm New Password</label>
+                            <Input
+                                type="password"
+                                value={pwdForm.confirm}
+                                onChange={(e) => setPwdForm({ ...pwdForm, confirm: e.target.value })}
+                                placeholder="Re-enter new password"
+                                className="rounded-lg border-slate-200 dark:border-slate-700"
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={() => setPwdDialogOpen(false)}
+                            className="rounded-lg border-slate-200 dark:border-slate-700"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={handleChangePassword}
+                            disabled={pwdLoading}
+                            className="rounded-lg bg-slate-800 hover:bg-slate-700 text-white"
+                        >
+                            {pwdLoading ? "Updating..." : "Update Password"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

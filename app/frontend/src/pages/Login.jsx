@@ -77,11 +77,8 @@ export default function Login() {
             </Button>
           </form>
           <div className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg border border-slate-100 dark:border-slate-800">
-            <p className="font-semibold mb-2 text-slate-600 dark:text-slate-300">Demo Credentials:</p>
-            <p>Admin: priya@company.com</p>
-            <p>Manager: raj@company.com</p>
-            <p>Employee: vikram@company.com</p>
-            <p className="mt-2">Password for all: password123</p>
+            <p>Default password for all accounts: <strong className="text-slate-700 dark:text-slate-300">password123</strong></p>
+            <p className="mt-1 text-xs">🔒 It is recommended to change your password after first login.</p>
           </div>
         </CardContent>
       </Card>

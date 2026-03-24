@@ -171,6 +171,20 @@ async def login(data: LoginData):
 async def read_users_me(current_user: dict = Depends(get_current_user)):
     return current_user
 
+class ChangePasswordData(BaseModel):
+    current_password: str
+    new_password: str
+
+@api_router.post("/auth/change-password")
+async def change_password(data: ChangePasswordData, current_user: dict = Depends(get_current_user)):
+    if not verify_password(data.current_password, current_user["password_hash"]):
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+    if len(data.new_password) < 6:
+        raise HTTPException(status_code=400, detail="New password must be at least 6 characters")
+    new_hash = get_password_hash(data.new_password)
+    await db.employees.update_one({"id": current_user["id"]}, {"$set": {"password_hash": new_hash}})
+    return {"message": "Password updated successfully! Your new secret is safe with us."}
+
 # ── Helper ──
 
 SMTP_SERVER = os.environ.get("SMTP_SERVER", "smtp.gmail.com")
