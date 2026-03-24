@@ -218,6 +218,14 @@ export default function Layout({ children }) {
                         </NavLink>
                     ))}
                     <button
+                        onClick={() => setPwdDialogOpen(true)}
+                        className="flex flex-col items-center justify-center py-2 px-3 min-w-[70px] rounded-xl text-slate-500 hover:bg-amber-50 hover:text-amber-600 transition-colors shrink-0"
+                        data-testid="mobile-nav-change-password"
+                    >
+                        <KeyRound className="w-5 h-5 mb-1 shrink-0" />
+                        <span className="text-[10px] text-center whitespace-nowrap">Password</span>
+                    </button>
+                    <button
                         onClick={logout}
                         className="flex flex-col items-center justify-center py-2 px-3 min-w-[70px] rounded-xl text-slate-500 hover:bg-rose-50 hover:text-rose-600 transition-colors shrink-0"
                         data-testid="mobile-nav-logout"
